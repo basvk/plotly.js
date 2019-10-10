@@ -182,6 +182,7 @@ function draw(gd, titleClass, options) {
 
             // Prevent the title going off the paper
             if(maxshift < 0) {
+                console.log('Off the paper', paperbb[avoid.side], titlebb[avoid.side])
                 shift = maxshift;
             } else {
                 // so we don't have to offset each avoided element,
@@ -205,6 +206,9 @@ function draw(gd, titleClass, options) {
                 });
                 shift = Math.min(maxshift, shift);
             }
+
+            console.log('shift', shift, 'maxshift', maxshift)
+
             if(shift > 0 || maxshift < 0) {
                 var shiftTemplate = {
                     left: [-shift, 0],
@@ -212,6 +216,7 @@ function draw(gd, titleClass, options) {
                     top: [0, -shift],
                     bottom: [0, shift]
                 }[avoid.side];
+                console.log('SHIFTING', shiftTemplate)
                 titleGroup.attr('transform', 'translate(' + shiftTemplate + ')');
             }
         }
