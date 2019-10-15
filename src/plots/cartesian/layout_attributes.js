@@ -68,7 +68,7 @@ module.exports = {
             min: 0,
             editType: 'ticks',
             description: [
-                'Sets the standoff distance (in px) between the axis line and the title text',
+                'Sets the standoff distance (in px) between the axis labels and the title text',
                 'The default value is a function of the axis tick labels, the title `font.size`',
                 'and the axis `linewidth`.',
                 'Note that the axis title position is always constrained within the margins,',

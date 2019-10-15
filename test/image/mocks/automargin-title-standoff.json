@@ -1,11 +1,11 @@
 {
   "data": [
-    {"y": [1]},
-    {"y": [1], "xaxis": "x2", "yaxis": "y2"}
+    {"x": ["looooooooooong label"], "y": [1]},
+    {"y": ["looooooooooong label"], "x": [1], "xaxis": "x2", "yaxis": "y2"}
   ],
   "layout": {
     "width": 600,
-    "height": 300,
+    "height": 500,
     "margin": {"l": 0, "r": 0, "t": 0, "b": 0},
     "showlegend": false,
     "grid": {"rows": 1, "columns": 2, "pattern": "independent"},
@@ -17,7 +17,9 @@
       },
       "automargin": true,
       "showline": true,
-      "mirror": true
+      "mirror": true,
+      "ticks": "outside",
+      "tickangle": 20
     },
     "yaxis": {
       "title": {
@@ -49,7 +51,9 @@
       },
       "automargin": true,
       "showline": true,
-      "mirror": true
+      "mirror": true,
+      "ticks": "outside",
+      "tickangle": 80
     }
   }
 }
