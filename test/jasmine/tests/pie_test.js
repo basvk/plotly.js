@@ -893,7 +893,6 @@ describe('Pie traces', function() {
             showlegend: false
         };
 
-        var initialSize;
         var previousSize;
         function assertSize(msg, actual, exp) {
             for(var k in exp) {
@@ -904,11 +903,10 @@ describe('Pie traces', function() {
                     '=': 'toBe',
                     '~=': 'toBeWithin',
                     grew: 'toBeGreaterThan',
-                    shrunk: 'toBeLessThan',
-                    initial: 'toBe'
+                    shrunk: 'toBeLessThan'
                 }[op];
 
-                var val = op === 'initial' ? initialSize[k] : previousSize[k];
+                var val = previousSize[k];
                 var msgk = msg + ' ' + k + (parts[1] ? ' |' + parts[1] : '');
                 var args = op === '~=' ? [val, 1.1, msgk] : [val, msgk, ''];
 
@@ -929,7 +927,6 @@ describe('Pie traces', function() {
         Plotly.plot(gd, data, layout)
         .then(function() {
             var gs = gd._fullLayout._size;
-            initialSize = Lib.extendDeep({}, gs);
             previousSize = Lib.extendDeep({}, gs);
         })
         .then(check('automargin:true', {automargin: true}, {
@@ -941,8 +938,8 @@ describe('Pie traces', function() {
             b: 'shrunk', r: 'shrunk'
         }))
         .then(check('arrayOk textposition', {textposition: [['outside', 'outside', 'inside', 'inside', 'outside']]}, {
-            t: '=', l: 'shrunk',
-            b: '=', r: 'grew'
+            t: '~=', l: 'shrunk',
+            b: '~=', r: 'grew'
         }))
         .then(check('automargin:false', {automargin: false}, {
             t: 'shrunk', l: 'shrunk',
