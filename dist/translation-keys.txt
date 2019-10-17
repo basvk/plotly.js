@@ -4,13 +4,13 @@ Click to enter Colorscale title                        // plots/plots.js:322
 Click to enter Component A title                       // plots/ternary/ternary.js:376
 Click to enter Component B title                       // plots/ternary/ternary.js:386
 Click to enter Component C title                       // plots/ternary/ternary.js:396
-Click to enter Plot title                              // plot_api/plot_api.js:569
+Click to enter Plot title                              // plot_api/plot_api.js:573
 Click to enter X axis title                            // plots/plots.js:320
 Click to enter Y axis title                            // plots/plots.js:321
 Click to enter radial axis title                       // plots/polar/polar.js:492
 Compare data on hover                                  // components/modebar/buttons.js:185
 Double-click on legend to isolate one trace            // components/legend/handle_click.js:27
-Double-click to zoom back out                          // plots/cartesian/dragbox.js:1087
+Double-click to zoom back out                          // plots/cartesian/dragbox.js:1099
 Download plot                                          // components/modebar/buttons.js:53
 Download plot as a png                                 // components/modebar/buttons.js:52
 Edit in Chart Studio                                   // components/modebar/buttons.js:85

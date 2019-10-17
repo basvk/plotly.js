@@ -148,6 +148,15 @@ module.exports = {
             'If true, then zoom is disabled.'
         ].join(' ')
     },
+    bounds: {
+      valType: 'info_array',
+
+      items: [
+          {valType: 'any', editType: 'axrange'},
+          {valType: 'any', editType: 'axrange'}
+      ],
+      editType: 'axrange'
+    },
     // scaleanchor: not used directly, just put here for reference
     // values are any opposite-letter axis id
     scaleanchor: {

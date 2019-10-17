@@ -495,8 +495,12 @@ function setPlotContext(gd, config) {
     // fill context._scrollZoom helper to help manage scrollZoom flaglist
     var szIn = context.scrollZoom;
     var szOut = context._scrollZoom = {};
-    if(szIn === true) {
-        szOut.cartesian = 1;
+    if(szIn === true || szIn === 'x' || szIn === 'y') {
+        if (szIn !== true) {
+          szOut.cartesian = szIn;
+        } else {
+          szOut.cartesian = 1;
+        }
         szOut.gl3d = 1;
         szOut.geo = 1;
         szOut.mapbox = 1;

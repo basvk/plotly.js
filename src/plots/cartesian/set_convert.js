@@ -616,6 +616,14 @@ module.exports = function setConvert(ax, fullLayout) {
         }
     };
 
+    ax.clipToAxBounds = function(value) {
+      if (ax._bl) {
+        return value < ax._bl[0] ? ax._bl[0] : value;
+        return value > ax._bl[1] ? ax._bl[1] : value;
+      }
+      return value;
+    };
+
     // sort the axis (and all the matching ones) by _initialCategories
     // returns the indices of the traces affected by the reordering
     ax.sortByInitialCategories = function() {

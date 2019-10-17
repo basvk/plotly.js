@@ -1624,6 +1624,10 @@ axes.draw = function(gd, arg, opts) {
             ax._r = ax.range.slice();
             ax._rl = Lib.simpleMap(ax._r, ax.r2l);
 
+            if (Array.isArray(ax._input.bounds) && ax._input.bounds.length === 2) {
+                ax._bl = Lib.simpleMap(ax._input.bounds, ax.r2l);
+            }
+
             return axDone;
         };
     }));

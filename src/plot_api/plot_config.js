@@ -147,14 +147,16 @@ var configAttributes = {
     scrollZoom: {
         valType: 'flaglist',
         flags: ['cartesian', 'gl3d', 'geo', 'mapbox'],
-        extras: [true, false],
+        extras: [true, false, 'x', 'y'],
         dflt: 'gl3d+geo+mapbox',
         description: [
             'Determines whether mouse wheel or two-finger scroll zooms is enable.',
             'Turned on by default for gl3d, geo and mapbox subplots',
             '(as these subplot types do not have zoombox via pan),',
             'but turned off by default for cartesian subplots.',
-            'Set `scrollZoom` to *false* to disable scrolling for all subplots.'
+            'Set `scrollZoom` to *false* to disable scrolling for all subplots.',
+            'On cartesian subplots, set `scrollZoom` to *"x"* to only scroll along the x-axis,',
+            'or *"y"* to only scroll along the y-axis.'
         ].join(' ')
     },
     doubleClick: {

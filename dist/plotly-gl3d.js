@@ -82663,8 +82663,12 @@ function setPlotContext(gd, config) {
     // fill context._scrollZoom helper to help manage scrollZoom flaglist
     var szIn = context.scrollZoom;
     var szOut = context._scrollZoom = {};
-    if(szIn === true) {
-        szOut.cartesian = 1;
+    if(szIn === true || szIn === 'x' || szIn === 'y') {
+        if (szIn !== true) {
+          szOut.cartesian = szIn;
+        } else {
+          szOut.cartesian = 1;
+        }
         szOut.gl3d = 1;
         szOut.geo = 1;
         szOut.mapbox = 1;
@@ -86136,7 +86140,7 @@ var configAttributes = {
     scrollZoom: {
         valType: 'flaglist',
         flags: ['cartesian', 'gl3d', 'geo', 'mapbox'],
-        extras: [true, false],
+        extras: [true, false, 'x', 'y'],
         dflt: 'gl3d+geo+mapbox',
         
     },
@@ -91671,6 +91675,10 @@ axes.draw = function(gd, arg, opts) {
             ax._r = ax.range.slice();
             ax._rl = Lib.simpleMap(ax._r, ax.r2l);
 
+            if (Array.isArray(ax._input.bounds) && ax._input.bounds.length === 2) {
+                ax._bl = Lib.simpleMap(ax._input.bounds, ax.r2l);
+            }
+
             return axDone;
         };
     }));
@@ -94567,11 +94575,11 @@ function makeDragBox(gd, plotinfo, x, y, w, h, ns, ew) {
 
             var axRange = Lib.simpleMap(ax.range, ax.r2l);
             var v0 = axRange[0] + (axRange[1] - axRange[0]) * centerFraction;
-            function doZoom(v) { return ax.l2r(v0 + (v - v0) * zoom); }
+            function doZoom(v) { return ax.l2r(ax.clipToAxBounds(v0 + (v - v0) * zoom)); }
             ax.range = axRange.map(doZoom);
         }
 
-        if(editX) {
+        if(editX && gd._context._scrollZoom.cartesian !== 'y') {
             // if we're only zooming this axis because of constraints,
             // zoom it about the center
             if(!ew) xfrac = 0.5;
@@ -94584,7 +94592,7 @@ function makeDragBox(gd, plotinfo, x, y, w, h, ns, ew) {
             scrollViewBox[2] *= zoom;
             scrollViewBox[0] += scrollViewBox[2] * xfrac * (1 / zoom - 1);
         }
-        if(editY) {
+        if(editY && gd._context._scrollZoom.cartesian !== 'x') {
             if(!ns) yfrac = 0.5;
 
             for(i = 0; i < yaxes.length; i++) {
@@ -94629,15 +94637,27 @@ function makeDragBox(gd, plotinfo, x, y, w, h, ns, ew) {
         gd._fullLayout._replotting = true;
 
         if(xActive === 'ew' || yActive === 'ns') {
+            var dw = 0, dh = 0, rangeScale;
+
             if(xActive) {
+                var xaxes0 = xaxes[0];
                 dragAxList(xaxes, dx);
                 updateMatchedAxRange('x');
+                // check if the spanned range changed due to bounds clipping
+                rangeScale = (xaxes0.r2l(xaxes0.range[1]) - xaxes0.r2l(xaxes0.range[0])) / (xaxes0._rl[1] - xaxes0._rl[0]);
+                dw = pw - pw * rangeScale;
+                dx *= rangeScale;
             }
             if(yActive) {
+                var yaxes0 = yaxes[0];
                 dragAxList(yaxes, dy);
                 updateMatchedAxRange('y');
+                // check if the spanned range changed due to bounds clipping
+                rangeScale = (yaxes0.r2l(yaxes0.range[1]) - yaxes0.r2l(yaxes0.range[0])) / (yaxes0._rl[1] - yaxes0._rl[0]);
+                dh = ph - ph * rangeScale;
+                dy *= rangeScale;
             }
-            updateSubplots([xActive ? -dx : 0, yActive ? -dy : 0, pw, ph]);
+            updateSubplots([xActive ? -dx : 0, yActive ? -dy : 0, pw - dw, ph - dh]);
             ticksAndAnnotations();
             gd.emit('plotly_relayouting', updates);
             return;
@@ -94658,7 +94678,7 @@ function makeDragBox(gd, plotinfo, x, y, w, h, ns, ew) {
                 movedAx = axi;
                 newLinearizedEnd = axi._rl[otherEnd] +
                     (axi._rl[end] - axi._rl[otherEnd]) / dZoom(d / axi._length);
-                var newEnd = axi.l2r(newLinearizedEnd);
+                var newEnd = axi.l2r(axi.clipToAxBounds(newLinearizedEnd));
 
                 // if l2r comes back false or undefined, it means we've dragged off
                 // the end of valid ranges - so stop.
@@ -94694,7 +94714,7 @@ function makeDragBox(gd, plotinfo, x, y, w, h, ns, ew) {
                 // dragging one end of the y axis of a constrained subplot
                 // scale the other axis the same about its middle
                 for(i = 0; i < xaxes.length; i++) {
-                    xaxes[i].range = xaxes[i]._r.slice();
+                    xaxes[i].range = xaxes[i].clipToAxBounds(xaxes[i]._r.slice());
                     scaleZoom(xaxes[i], 1 - dy / ph);
                 }
                 dx = dy * pw / ph;
@@ -94702,7 +94722,7 @@ function makeDragBox(gd, plotinfo, x, y, w, h, ns, ew) {
             }
             if(!yActive && xActive.length === 1) {
                 for(i = 0; i < yaxes.length; i++) {
-                    yaxes[i].range = yaxes[i]._r.slice();
+                    yaxes[i].range = yaxes[i].clipToAxBounds(yaxes[i]._r.slice());
                     scaleZoom(yaxes[i], 1 - dx / pw);
                 }
                 dy = dx * ph / pw;
@@ -95074,8 +95094,8 @@ function zoomAxRanges(axList, r0Fraction, r1Fraction, updates, linkedAxes) {
 
         var axRangeLinear0 = axi._rl[0];
         var axRangeLinearSpan = axi._rl[1] - axRangeLinear0;
-        updates[axi._name + '.range[0]'] = axi.l2r(axRangeLinear0 + axRangeLinearSpan * r0Fraction);
-        updates[axi._name + '.range[1]'] = axi.l2r(axRangeLinear0 + axRangeLinearSpan * r1Fraction);
+        updates[axi._name + '.range[0]'] = axi.l2r(axi.clipToAxBounds(axRangeLinear0 + axRangeLinearSpan * r0Fraction));
+        updates[axi._name + '.range[1]'] = axi.l2r(axi.clipToAxBounds(axRangeLinear0 + axRangeLinearSpan * r1Fraction));
     }
 
     // zoom linked axes about their centers
@@ -95090,8 +95110,8 @@ function dragAxList(axList, pix) {
         var axi = axList[i];
         if(!axi.fixedrange) {
             axi.range = [
-                axi.l2r(axi._rl[0] - pix / axi._m),
-                axi.l2r(axi._rl[1] - pix / axi._m)
+                axi.l2r(axi.clipToAxBounds(axi._rl[0] - pix / axi._m)),
+                axi.l2r(axi.clipToAxBounds(axi._rl[1] - pix / axi._m))
             ];
         }
     }
@@ -96283,6 +96303,15 @@ module.exports = {
         
         editType: 'calc',
         
+    },
+    bounds: {
+      valType: 'info_array',
+
+      items: [
+          {valType: 'any', editType: 'axrange'},
+          {valType: 'any', editType: 'axrange'}
+      ],
+      editType: 'axrange'
     },
     // scaleanchor: not used directly, just put here for reference
     // values are any opposite-letter axis id
@@ -98735,6 +98764,14 @@ module.exports = function setConvert(ax, fullLayout) {
                 setCategoryIndex(ax._initialCategories[j]);
             }
         }
+    };
+
+    ax.clipToAxBounds = function(value) {
+      if (ax._bl) {
+        return value < ax._bl[0] ? ax._bl[0] : value;
+        return value > ax._bl[1] ? ax._bl[1] : value;
+      }
+      return value;
     };
 
     // sort the axis (and all the matching ones) by _initialCategories
