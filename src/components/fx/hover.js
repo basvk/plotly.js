@@ -1080,8 +1080,8 @@ function hoverAvoidOverlaps(hoverLabels, axKey, fullLayout) {
             pos: d.pos,
             posref: d.posref,
             size: d.by * (axIsX ? YFACTOR : 1) / 2,
-            pmin: 0,
-            pmax: (axIsX ? fullLayout.width : fullLayout.height)
+            pmin: (axIsX ? 0 : d.ya._mainLinePosition),
+            pmax: (axIsX ? fullLayout.width : d.xa._mainLinePosition)
         }];
     });
 
