@@ -309,6 +309,11 @@ function setOffsetAndWidthInGroupMode(gd, pa, sieve, opts) {
             barWidthPlusGap = overlap ? barGroupWidth / nTraces : barGroupWidth;
         }
 
+        var width = trace.width || trace._width;
+        if (width && !isArrayOrTypedArray(width)) {
+          barWidthPlusGap = width * (1 + opts.groupgap);
+        }
+
         var barWidth = barWidthPlusGap * (1 - (opts.groupgap || 0));
 
         var offsetFromCenter;
