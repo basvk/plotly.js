@@ -542,6 +542,10 @@ function makeDragBox(gd, plotinfo, x, y, w, h, ns, ew) {
         // prevent axis drawing from monkeying with margins until we're done
         gd._fullLayout._replotting = true;
 
+        // always zoom when rangemode is 'tozero'
+        if (xActive === 'ew' && xaxes[0]._input.rangemode === 'tozero') xActive = 'w';
+        if (yActive === 'ns' && yaxes[0]._input.rangemode === 'tozero') yActive = 'n';
+
         if(xActive === 'ew' || yActive === 'ns') {
             var dw = 0, dh = 0, rangeScale;
 
